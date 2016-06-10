@@ -1,4 +1,7 @@
 
+warning off MATLAB:maxNumCompThreads:Deprecated
+maxNumCompThreads(20);
+
 format long
 
 %addpath(genpath('/home/wang/matlab/quantum-dynamics/build'))
@@ -18,7 +21,6 @@ jRot = 0;
 nVib = 0;
 
 H2eV = 27.21138505;
-%vHClMin = -0.1697;
 
 MassAU = 1.822888484929367e+03;
 
@@ -38,7 +40,7 @@ time.steps = int32(0);
 % r1: R
 
 r1.n = int32(256);
-%r1.n = int32(256);
+%r1.n = int32(9600);
 r1.r = linspace(0.2, 14.0, r1.n);
 r1.dr = r1.r(2) - r1.r(1);
 r1.mass = masses(1)*(masses(2)+masses(3))/(masses(1)+masses(2)+masses(3));
@@ -55,7 +57,7 @@ dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
 % r2: r
 
 r2.n = int32(256);
-%r2.n = int32(256);
+%r2.n = int32(92);
 r2.r = linspace(0.3, 12.0, r2.n);
 r2.dr = r2.r(2) - r2.r(1);
 r2.mass = masses(2)*masses(3)/(masses(2)+masses(3));
@@ -73,7 +75,7 @@ fprintf(' Dviding surface: %.8f\n', r2Div);
 
 % theta
 
-dimensions = 2;
+dimensions = 3;
 
 if dimensions == 2 
   theta.n = int32(1);
@@ -81,7 +83,7 @@ if dimensions == 2
   theta.x = 1.0;
   theta.w = 2.0;
 else 
-  theta.n = int32(200);
+  theta.n = int32(300);
   theta.m = int32(180);
   [ theta.x, theta.w ] = GaussLegendre2(theta.n);
 end
@@ -96,7 +98,7 @@ theta.legendre = theta.legendre';
 options.wave_to_matlab = 'FH2Matlab.m';
 options.CRPMatFile = sprintf('CRPMat-j%d-v%d.mat', jRot, nVib);
 options.steps_to_copy_psi_from_device_to_host = int32(100);
-options.plot = true;
+options.plot = false;
 
 % setup potential energy surface and initial wavepacket
 pot = FH2PESJacobi(r1.r, r2.r, acos(theta.x), masses);
@@ -134,6 +136,8 @@ FH2Data.dump2 = dump2;
 FH2Data.CRP = CRP;
 
 % time evoluation
+
+return
 
 tic
 cudaMPIEvolution(FH2Data);

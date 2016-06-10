@@ -70,7 +70,23 @@ void mexFunction( int nlhs, mxArray *plhs[],
   mxPtr = mxGetField(prhs[0], 0, "CRP");
   insist(mxPtr);
   CummulativeReactionProbabilities CRP(mxPtr);
+
+  const int n_dims = mxGetNumberOfDimensions(pot.mx);
+  const size_t *dims = mxGetDimensions(pot.mx);
+
+  std::cout << " " << n_dims << std::endl;
+  int n = 1;
+  for(int i = 0; i < n_dims; i++) {
+    std::cout << dims[i] << std::endl;
+    n *= dims[i];
+  }
   
+  std::cout << " n = " << n << std::endl;
+  
+  void cuda_mpi_test_for_quantum_dynamics(double *p, const int n);
+
+  cuda_mpi_test_for_quantum_dynamics(pot.data, n);
+
 #if 0
   EvolutionCUDA evolCUDA(pot, psi, r1, r2, theta, time, options, 
 			  dump1, dump2, CRP);

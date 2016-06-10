@@ -63,8 +63,9 @@ function special_rules()
 function main() 
 {
     module purge
-    export LD_LIBRARY_PATH=
+    export LD_LIBRARY
     module load mvapich2-gdr/2.2
+    #module load mvapich2/intel/cuda/2.2rc1
     module load matlab/2015b
 
     export MY_INTEL_PATH=$HOME/bin/intel

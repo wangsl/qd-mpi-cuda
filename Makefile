@@ -36,10 +36,6 @@ CXXFLAGS = -std=c++0x $(NVCCINCLUDE)
 
 Link = $(CXX)
 
-LIBS = #-Bstatic -L$(MKL_ROOT)/lib/intel64 -Wl,--start-group -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -Wl,--end-group -Bdynamic
-
-#-Bdynamic -L$(INTEL_LIB) -lcilkrts -Bdynamic #-lfftw3_omp -lifcoremt -L$(CUDA_LIB) -lcufft -lcublas -lcudart
-
 MEXA64Files = \
 	$(O)/MPI_Init.mexa64 \
 	$(O)/MPI_Finalize.mexa64 \
@@ -49,7 +45,7 @@ MEXA64Files = \
 	$(O)/cudaMPITest.mexa64 \
 	$(O)/cudaMPIEvolution.mexa64
 
-CUDAObjs = $(O)/cudaTest.o
+CUDAObjs = $(O)/cudaTest.o $(O)/cudaMPIQMMDTest.o
 
 CUDALinkObj = $(O)/cudalink.o
 
