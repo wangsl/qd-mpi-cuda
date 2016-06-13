@@ -45,7 +45,7 @@ MEXA64Files = \
 	$(O)/cudaMPITest.mexa64 \
 	$(O)/cudaMPIEvolution.mexa64
 
-CUDAObjs = $(O)/cudaTest.o $(O)/cudaMPIQMMDTest.o
+CUDAObjs = $(O)/cudaTest.o $(O)/cudaMPIQMMDTest.o $(O)/cudaConstMem.o
 
 CUDALinkObj = $(O)/cudalink.o
 
@@ -56,7 +56,7 @@ OBJS = $(O)/matlabUtils.o $(O)/die.o $(O)/rmatalgo.o  $(O)/rmato.o  $(O)/indent.
 
 QMLibs = $(O)/libqmdyn.a
 
-.DEFAULT_GOAL := $(O)/cudaMPIEvolution.mexa64
+.DEFAULT_GOAL := $(O)/cudaMPITest.mexa64 
 
 all: $(MEXA64Files)
 

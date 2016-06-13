@@ -7,21 +7,8 @@ global FH2Data
 [ myMPI.rank, myMPI.size ] = MPI_Init();
 
 setenv('CUDA_VISIBLE_DEVICES', int2str(myMPI.rank));
-%setenv('OMP_NUM_THREADS', int2str(20));
-%setenv('MKL_NUM_THREADS', int2str(20));
 
-FH2main();
-
-for i = 1 : 100
-  %FH2main()
-  tic
-  cudaMPIEvolution(FH2Data);
-  toc
-end
-
-% PiMPI()
-% cudaDirect()
-% cudaMPITest();
+cudaMPITest();
 
 MPI_Finalize();
 
