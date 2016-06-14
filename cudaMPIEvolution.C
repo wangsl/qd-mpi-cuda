@@ -7,16 +7,7 @@
 #include <cmath>
 #include <mex.h>
 
-#include "matlabUtils.h"
-#include "matlabStructures.h"
-#include "fort.h"
-#include "matlabArray.h"
-#include "complex.h"
-
 #include "evolutionMPICUDA.h"
-
-//#include "timeEvolCUDA.h"
-//#include "evolutionCUDA.h"
 
 extern "C" int FORT(myisnan)(const double &x)
 {

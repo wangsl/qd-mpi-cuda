@@ -1,8 +1,8 @@
 
 /* $Id$ */
 
-#ifndef MATLABUTILS_H
-#define MATLABUTILS_H
+#ifndef MATLAB_UTILS_H
+#define MATLAB_UTILS_H
 
 #define MCrash(x) MatlabCrashLoc(x, __FILE__, __LINE__)
 #define MatCrash(x) MatlabCrashLoc(x, __FILE__, __LINE__)

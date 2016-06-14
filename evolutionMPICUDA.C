@@ -9,24 +9,19 @@ EvolutionMPICUDA::EvolutionMPICUDA(const MatlabArray<double> &m_pot,
 				   ) :
   m_pot(m_pot), m_psi(m_psi),
   r1(r1), r2(r2), theta(theta),
-  // device memory
-  pot_dev(0), psi_dev(0)
+  pot_dev(0)
 {
   pot = m_pot.data;
   insist(pot);
   
-  psi = m_psi.data;
-  insist(psi);
-
   allocate_device_data();
 }
 
 EvolutionMPICUDA::~EvolutionMPICUDA()
 {
   pot = 0;
-  psi = 0;
-  
   deallocate_device_data();
+  cudaUtils::gpu_memory_usage();
 }
   
 void EvolutionMPICUDA::test()
@@ -39,7 +34,6 @@ void EvolutionMPICUDA::test()
     std::cout << " " << dims[i];
   std::cout << std::endl;
 
-  
   const int &n_ds = m_psi.n_dims();
   const size_t *ds = m_psi.dims();
   for(int i = 0; i < n_ds; i++)
@@ -50,4 +44,12 @@ void EvolutionMPICUDA::test()
   std::cout << " " << r2.n << " " << r2.left << " " << r2.dr << " " << r2.mass << std::endl;
 
   test_device();
+
+  cudaUtils::gpu_memory_usage();
+
+  Vec<OmegaWaveFunction> OPsi(5);
+  for(int i = 0; i < OPsi.size(); i++) {
+    OPsi[i].setup_data(m_psi);
+    cudaUtils::gpu_memory_usage();
+  }
 }

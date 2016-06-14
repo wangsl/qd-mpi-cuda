@@ -3,10 +3,7 @@
 #define EVOLUTION_MPI_CUDA_H
 
 #include <iostream>
-
-#include "matlabArray.h"
-#include "complex.h"
-#include "matlabUtils.h"
+#include "OmegaWave.h"
 #include "matlabStructures.h"
 
 class EvolutionMPICUDA
@@ -26,7 +23,6 @@ public:
 
 private:
   double *pot;
-  Complex *psi;
 
   const MatlabArray<double> &m_pot;
   MatlabArray<Complex> &m_psi;
@@ -35,9 +31,7 @@ private:
   const RadialCoordinate &r2;
   const AngleCoordinate &theta;
 
-  // device data
   double *pot_dev;
-  Complex *psi_dev;
 
   void allocate_device_data();
   void deallocate_device_data();

@@ -1,8 +1,8 @@
 
 /* $Id$ */
 
-#ifndef MATLABARRAY_H
-#define MATLABARRAY_H
+#ifndef MATLAB_ARRAY_H
+#define MATLAB_ARRAY_H
 
 #include <iostream>
 #include <mex.h>

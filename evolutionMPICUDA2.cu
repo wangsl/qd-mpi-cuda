@@ -33,31 +33,28 @@ void EvolutionMPICUDA::allocate_device_data()
     checkCudaErrors(cudaMemcpy(pot_dev, pot, n*sizeof(double), cudaMemcpyHostToDevice));
   }
   
-  if(!psi_dev) {
-    checkCudaErrors(cudaMalloc(&psi_dev, n*sizeof(Complex)));
-    checkCudaErrors(cudaMemcpy(psi_dev, psi, n*sizeof(Complex), cudaMemcpyHostToDevice));
-  }
-
+  // copy Gauss Legendre quadrature weight
+  size_t size = 0;
+  checkCudaErrors(cudaGetSymbolSize(&size, gauss_legendre_weight_dev));
+  insist(size/sizeof(double) > n_theta);
+  checkCudaErrors(cudaMemcpyToSymbol(gauss_legendre_weight_dev, theta.w, n_theta*sizeof(double)));
+  
   EvoltionUtils::copy_radial_coordinate_to_device(r1_dev, r1.left, r1.dr, r1.mass, r1.n);
   EvoltionUtils::copy_radial_coordinate_to_device(r2_dev, r2.left, r2.dr, r2.mass, r2.n);
-
 }
 
 void EvolutionMPICUDA::deallocate_device_data()
 {
   std::cout << " DeAllocate device memory" << std::endl;
 
-#define _CUDA_FREE_(x) if(x) { checkCudaErrors(cudaFree(x)); x = 0; }
-
   _CUDA_FREE_(pot_dev);
-  _CUDA_FREE_(psi_dev);
-
-#undef _CUDA_FREE_
 }
 
 void EvolutionMPICUDA::test_device()
 {
   std::cout << " Test CUDA data" << std::endl;
 
-  _test_dev_r<<<1,1>>>();
+  _test_constant_memory_<<<1,1>>>();
+
+  _print_gauss_legendre_weight_<<<1,1>>>(theta.n);
 }
