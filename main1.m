@@ -8,7 +8,9 @@ global FH2Data
 
 setenv('CUDA_VISIBLE_DEVICES', int2str(myMPI.rank));
 
-cudaMPITest();
+%cudaMPITest();
+
+FH2main(1)
 
 MPI_Finalize();
 

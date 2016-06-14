@@ -1,8 +1,8 @@
 
-function [] = FH2main(run_evolution)
+function [] = FH2main2(run_evolution)
 
 if nargin == 0 
-  run_evolution = 0;
+  run_evolution = 0
 end
 
 warning off MATLAB:maxNumCompThreads:Deprecated
@@ -63,10 +63,9 @@ dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
 
 % r2: r
 
-r2.n = int32(128);
+r2.n = int32(256);
 %r2.n = int32(92);
 r2.r = linspace(0.3, 12.0, r2.n);
-r2.left = r2.r(1);
 r2.dr = r2.r(2) - r2.r(1);
 r2.mass = masses(2)*masses(3)/(masses(2)+masses(3));
 
@@ -145,10 +144,7 @@ FH2Data.CRP = CRP;
 
 % time evoluation
 
-if run_evolution == 0
-  return
-end
-  
+
 tic
 cudaMPIEvolution(FH2Data);
 toc

@@ -17,10 +17,11 @@ void remove_matlab_script_extension(char *script, const char *extension)
 RadialCoordinate::RadialCoordinate(const mxArray *mx) :
   mx(mx),
   n(*(int *) mxGetData(mx, "n")),
+  left(*(double *) mxGetData(mx, "left")),
   dr(*(double *) mxGetData(mx, "dr")),
   mass(*(double *) mxGetData(mx, "mass"))
 { 
-  r = RVec(n, (double *) mxGetData(mx, "r"));
+  //r = RVec(n, (double *) mxGetData(mx, "r"));
   
 #if 0
   psq2m.resize(n);
@@ -28,13 +29,13 @@ RadialCoordinate::RadialCoordinate(const mxArray *mx) :
   for(int i = 0; i < n; i++) {
     psq2m[i] = psq2m[i]*psq2m[i]/(2*mass);
   }
-#endif
 
   one2mr2.resize(n);
   const double m2 = mass+mass;
   for(int i = 0; i < n; i++) { 
     one2mr2[i] = 1.0/(m2*r[i]*r[i]);
   }
+#endif
 }
 
 AngleCoordinate::AngleCoordinate(const mxArray *mx) :
@@ -45,10 +46,10 @@ AngleCoordinate::AngleCoordinate(const mxArray *mx) :
   x = RVec(n, (double *) mxGetData(mx, "x"));
   w = RVec(n, (double *) mxGetData(mx, "w"));
   
-  double *p = (double *) mxGetData(mx, "legendre");
+  double *p = (double *) mxGetData(mx, "associated_legendre");
   insist(p);
 
-  legendre = RMat(m+1, n, p);
+  associated_legendre = RMat(m+1, n, p);
 }
   
 EvolutionTime::EvolutionTime(const mxArray *mx) :

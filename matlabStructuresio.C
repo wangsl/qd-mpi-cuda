@@ -1,5 +1,5 @@
 
-/* created at: 2016-06-08 14:57:04 */
+/* created at: 2016-06-14 12:56:02 */
 
 #include <iostream>
 using namespace std;
@@ -22,6 +22,7 @@ ostream & operator <<(ostream &s, const RadialCoordinate &c)
 void RadialCoordinate::write_fields(ostream &s) const
 {
   s << Indent() << "n " << n << "\n";
+  s << Indent() << "left " << left << "\n";
   s << Indent() << "dr " << dr << "\n";
   s << Indent() << "mass " << mass << "\n";
 }

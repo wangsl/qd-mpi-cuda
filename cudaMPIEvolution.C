@@ -6,11 +6,15 @@
 #include <cstring>
 #include <cmath>
 #include <mex.h>
+
 #include "matlabUtils.h"
 #include "matlabStructures.h"
 #include "fort.h"
 #include "matlabArray.h"
 #include "complex.h"
+
+#include "evolutionMPICUDA.h"
+
 //#include "timeEvolCUDA.h"
 //#include "evolutionCUDA.h"
 
@@ -19,8 +23,8 @@ extern "C" int FORT(myisnan)(const double &x)
   return isnan(x);
 }
 
-void mexFunction( int nlhs, mxArray *plhs[],
-                  int nrhs, const mxArray *prhs[])
+void mexFunction(int nlhs, mxArray *plhs[],
+		 int nrhs, const mxArray *prhs[])
 {
   const int np = std::cout.precision();
   std::cout.precision(15);
@@ -30,15 +34,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
   insist(nrhs == 1);
 
   mxArray *mxPtr = 0;
-
+  
   mxPtr = mxGetField(prhs[0], 0, "r1");
   insist(mxPtr);
   RadialCoordinate r1(mxPtr);
-
+  
   mxPtr = mxGetField(prhs[0], 0, "r2");
   insist(mxPtr);
   RadialCoordinate r2(mxPtr);
-
+  
   mxPtr = mxGetField(prhs[0], 0, "theta");
   insist(mxPtr);
   AngleCoordinate theta(mxPtr);
@@ -71,33 +75,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
   insist(mxPtr);
   CummulativeReactionProbabilities CRP(mxPtr);
 
-  const int n_dims = mxGetNumberOfDimensions(pot.mx);
-  const size_t *dims = mxGetDimensions(pot.mx);
-
-  std::cout << " " << n_dims << std::endl;
-  int n = 1;
-  for(int i = 0; i < n_dims; i++) {
-    std::cout << dims[i] << std::endl;
-    n *= dims[i];
-  }
-  
-  std::cout << " n = " << n << std::endl;
-  
-  void cuda_mpi_test_for_quantum_dynamics(double *p, const int n);
-
-  cuda_mpi_test_for_quantum_dynamics(pot.data, n);
-
-#if 0
-  EvolutionCUDA evolCUDA(pot, psi, r1, r2, theta, time, options, 
-			  dump1, dump2, CRP);
-  
-  //time_evolCUDA.time_evolution();
-  evolCUDA.test();
-#endif
-
-  //void cuda_test();
-  //cuda_test();
-  
+  EvolutionMPICUDA evolMPICUDA(pot, psi, r1, r2, theta);
+  evolMPICUDA.test();
+ 
   std::cout.flush();
   std::cout.precision(np);
 }

@@ -13,20 +13,15 @@ class RadialCoordinate
 {
 public:
   
-  friend class TimeEvolution;
-  
+  //friend class TimeEvolution;
   const int &n; // out
-  RVec r;
+  const double &left; // out
   const double &dr; // out
   const double &mass; // out
-  
-  RVec psq2m;
-  RVec one2mr2;
   
   RadialCoordinate(const mxArray *mx);
   
 private:
-  
   const mxArray *mx;
 
   // to prevent assigment and copy operation
@@ -42,18 +37,17 @@ class AngleCoordinate
 {
 public:
   
-  friend class TimeEvolution;
+  //friend class TimeEvolution;
   
   const int &n; // out
   const int &m; // out
   RVec x;
   RVec w;
-  RMat legendre; 
-
-  AngleCoordinate(const mxArray *mx);
-
-private:
+  RMat associated_legendre; 
   
+  AngleCoordinate(const mxArray *mx);
+  
+private:
   const mxArray *mx;
 
   // to prevent assigment and copy operation
@@ -78,7 +72,6 @@ public:
   EvolutionTime(const mxArray *mx);
 
 private:
-  
   const mxArray *mx;
 
   EvolutionTime(const EvolutionTime &);

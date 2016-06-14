@@ -30,7 +30,7 @@ CUDAArchs= \
         -gencode arch=compute_52,code=compute_52 \
 	-Xcompiler=\"-fPIC -pthread -fexceptions -m64\"
 
-NVCCFLAGS = $(NVCCINCLUDE) $(CUDAArchs) -O3 -prec-div=true -prec-sqrt=true 
+NVCCFLAGS = $(NVCCINCLUDE) $(CUDAArchs) -O3 -prec-div=true -prec-sqrt=true -rdc=true
 
 CXXFLAGS = -std=c++0x $(NVCCINCLUDE)
 
@@ -45,18 +45,20 @@ MEXA64Files = \
 	$(O)/cudaMPITest.mexa64 \
 	$(O)/cudaMPIEvolution.mexa64
 
-CUDAObjs = $(O)/cudaTest.o $(O)/cudaMPIQMMDTest.o $(O)/cudaConstMem.o
+CUDAObjs = $(O)/cudaTest.o $(O)/cudaMPIQMMDTest.o $(O)/cudaConstMem.o \
+	$(O)/testConstMem.o $(O)/cudaMem.o $(O)/evolutionMPICUDA2.o 
 
 CUDALinkObj = $(O)/cudalink.o
 
 OBJS = $(O)/matlabUtils.o $(O)/die.o $(O)/rmatalgo.o  $(O)/rmato.o  $(O)/indent.o \
 	$(O)/out.o  $(O)/rmat.o \
 	$(O)/matlabStructures.o  $(O)/matlabStructuresio.o \
+	$(O)/evolutionMPICUDA.o \
 	$(CUDAObjs) $(CUDALinkObj)
 
 QMLibs = $(O)/libqmdyn.a
 
-.DEFAULT_GOAL := $(O)/cudaMPITest.mexa64 
+.DEFAULT_GOAL := $(O)/cudaMPIEvolution.mexa64
 
 all: $(MEXA64Files)
 

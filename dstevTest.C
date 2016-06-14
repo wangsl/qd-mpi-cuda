@@ -90,7 +90,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   assert(work);
 
   FInt n_ = n;
-  const char jobV[128] = "V";
+  const char jobV[32] = "V";
   FInt info = -100;
   FORT(dstev)(jobV, n_, diag_eles, sub_diag_eles, evs, n_, work, info);
   assert(info == 0);  

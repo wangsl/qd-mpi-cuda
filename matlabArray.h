@@ -21,6 +21,12 @@ public:
     insist(data);
   }
   
+  int n_dims() const
+  { return mx ? mxGetNumberOfDimensions(mx) : 0; }
+  
+  const size_t *dims() const
+  { return mx ? mxGetDimensions(mx) : 0; }
+  
   ~MatlabArray()
   { 
     mx = 0;
