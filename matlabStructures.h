@@ -8,16 +8,20 @@
 using namespace std;
 #include <mex.h>
 #include "rmat.h"
+#include "complex.h"
 
 class RadialCoordinate
 {
 public:
   
-  //friend class TimeEvolution;
+  // friend class TimeEvolution;
+
   const int &n; // out
   const double &left; // out
   const double &dr; // out
   const double &mass; // out
+  const double &dump_Cd; // out
+  const double &dump_xd; // out
   
   RadialCoordinate(const mxArray *mx);
   
@@ -37,7 +41,7 @@ class AngleCoordinate
 {
 public:
   
-  //friend class TimeEvolution;
+  // friend class TimeEvolution;
   
   const int &n; // out
   const int &m; // out
@@ -63,7 +67,7 @@ class EvolutionTime
 {
 public:
 
-  friend class TimeEvolution;
+  // friend class TimeEvolution;
 
   const int &total_steps; // out
   const double &time_step; // out
@@ -86,7 +90,7 @@ class Options
 {
 public:
   
-  friend class TimeEvolution;
+  // friend class TimeEvolution;
 
   char *wave_to_matlab; // out
   char *test_name; // out
@@ -110,7 +114,7 @@ class DumpFunction
 {
 public:
   
-  friend class TimeEvolution;
+  // friend class TimeEvolution;
 
   DumpFunction(const mxArray *mx);
   ~DumpFunction();
@@ -126,7 +130,7 @@ class CummulativeReactionProbabilities
 {
 public:
 
-  friend class TimeEvolution;
+  // friend class TimeEvolution;
 
   RVec energies; // out
   RVec eta_sq; // out
@@ -148,6 +152,25 @@ private:
   friend ostream & operator <<(ostream &s, const CummulativeReactionProbabilities &c);
   void write_fields(ostream &s) const;
   
+};
+
+class OmegaStates
+{
+public:
+  
+  OmegaStates(const mxArray *mx);
+  ~OmegaStates();
+
+  const int &lmax; // out
+  Vec<int> omegas; // out
+  Vec<RMat> associated_legendres; // out
+  Vec<Vec<Complex> > wave_packets;
+
+private:
+  const mxArray *mx;
+
+  friend ostream & operator <<(ostream &s, const OmegaStates &c);
+  void write_fields(ostream &s) const;
 };
 
 #endif /* MATLAB_STRUCTURES_H */

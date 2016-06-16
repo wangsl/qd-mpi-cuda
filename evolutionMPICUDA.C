@@ -46,10 +46,4 @@ void EvolutionMPICUDA::test()
   test_device();
 
   cudaUtils::gpu_memory_usage();
-
-  Vec<OmegaWaveFunction> OPsi(5);
-  for(int i = 0; i < OPsi.size(); i++) {
-    OPsi[i].setup_data(m_psi);
-    cudaUtils::gpu_memory_usage();
-  }
 }

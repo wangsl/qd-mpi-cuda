@@ -7,7 +7,7 @@
 #include <cmath>
 #include <mex.h>
 
-#include "evolutionMPICUDA.h"
+#include "evolutionCUDA.h"
 
 extern "C" int FORT(myisnan)(const double &x)
 {
@@ -66,8 +66,13 @@ void mexFunction(int nlhs, mxArray *plhs[],
   insist(mxPtr);
   CummulativeReactionProbabilities CRP(mxPtr);
 
-  EvolutionMPICUDA evolMPICUDA(pot, psi, r1, r2, theta);
-  evolMPICUDA.test();
+  mxPtr = mxGetField(prhs[0], 0, "OmegaStates");
+  insist(mxPtr);
+  OmegaStates omegas(mxPtr);
+
+  EvolutionCUDA evolCUDA(pot.data, r1, r2, theta, omegas);
+  cudaUtils::gpu_memory_usage();
+  evolCUDA.test();
  
   std::cout.flush();
   std::cout.precision(np);

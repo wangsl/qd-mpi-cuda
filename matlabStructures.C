@@ -3,6 +3,7 @@
 
 #include "matlabStructures.h"
 #include "matlabUtils.h"
+#include "matlabArray.h"
 //#include "fftwinterface.h"
 
 void remove_matlab_script_extension(char *script, const char *extension)
@@ -19,24 +20,10 @@ RadialCoordinate::RadialCoordinate(const mxArray *mx) :
   n(*(int *) mxGetData(mx, "n")),
   left(*(double *) mxGetData(mx, "left")),
   dr(*(double *) mxGetData(mx, "dr")),
-  mass(*(double *) mxGetData(mx, "mass"))
-{ 
-  //r = RVec(n, (double *) mxGetData(mx, "r"));
-  
-#if 0
-  psq2m.resize(n);
-  FFTWInterface::get_momentum_for_fftw(psq2m, n*dr);
-  for(int i = 0; i < n; i++) {
-    psq2m[i] = psq2m[i]*psq2m[i]/(2*mass);
-  }
-
-  one2mr2.resize(n);
-  const double m2 = mass+mass;
-  for(int i = 0; i < n; i++) { 
-    one2mr2[i] = 1.0/(m2*r[i]*r[i]);
-  }
-#endif
-}
+  mass(*(double *) mxGetData(mx, "mass")),
+  dump_Cd(*(double *) mxGetData(mx, "dump_Cd")),
+  dump_xd(*(double *) mxGetData(mx, "dump_xd"))
+{ }
 
 AngleCoordinate::AngleCoordinate(const mxArray *mx) :
   mx(mx),
@@ -101,4 +88,53 @@ CummulativeReactionProbabilities::CummulativeReactionProbabilities(const mxArray
   CRP = RVec(n_energies, (double *) mxGetData(mx, "CRP"));
 }
 
+OmegaStates::OmegaStates(const mxArray *mx) :
+  mx(mx), 
+  lmax(*(int *) mxGetData(mx, "lmax"))
+{
+  const mxArray *omegas_ptr = mxGetField(mx, 0, "omegas");
+  insist(omegas_ptr);
+  
+  const MatlabArray<int> omegas_(omegas_ptr);
+  const size_t *dims_ = omegas_.dims();
+  omegas = Vec<int>(dims_[0]*dims_[1], omegas_.data);
+
+  const mxArray *assL_ptr = mxGetField(mx, 0, "associated_legendres");
+  insist(assL_ptr);
+
+  const MatlabArray<double> ass_leg(assL_ptr);
+  dims_ = ass_leg.dims();
+
+  associated_legendres.resize(dims_[2]);
+  
+  const double *p = ass_leg.data;
+  for(int i = 0; i < dims_[2]; i++) {
+    associated_legendres[i] = RMat(dims_[0], dims_[1]-i, const_cast<double *>(p));
+    p += dims_[0]*dims_[1];
+  }
+
+  const mxArray *wp_ptr = mxGetField(mx, 0, "wave_packets");
+  insist(wp_ptr);
+
+  const MatlabArray<Complex> wp(wp_ptr);
+  dims_ = wp.dims();
+
+  wave_packets.resize(dims_[3]);
+  
+  const Complex *c_p = wp.data;
+  const size_t size = dims_[0]*dims_[1]*dims_[2]/2;
+  for(int i = 0; i < dims_[3]; i++) {
+    wave_packets[i] = Vec<Complex>(size, const_cast<Complex *>(c_p));
+    p += size;
+  }
+  
+  //std::cout << " Wave packets size test" << std::endl;
+  //for(int i = 0; i < wave_packets.size(); i++) {
+  //std::cout << wave_packets[i].size() << std::endl;
+  //}
+
+}
+
+OmegaStates::~OmegaStates()
+{  if(mx) mx = 0; }
 

@@ -45,15 +45,15 @@ MEXA64Files = \
 	$(O)/cudaMPITest.mexa64 \
 	$(O)/cudaMPIEvolution.mexa64
 
-CUDAObjs = $(O)/cudaTest.o $(O)/cudaMPIQMMDTest.o $(O)/evolutionMPICUDA2.o \
-	$(O)/OmegaWave.o 
+CUDAObjs = $(O)/cudaTest.o $(O)/cudaMPIQMMDTest.o \
+	$(O)/OmegaWave.o $(O)/evolutionCUDA2.o
 
 CUDALinkObj = $(O)/cudalink.o
 
 OBJS = $(O)/matlabUtils.o $(O)/die.o $(O)/rmatalgo.o  $(O)/rmato.o  $(O)/indent.o \
 	$(O)/out.o  $(O)/rmat.o \
 	$(O)/matlabStructures.o  $(O)/matlabStructuresio.o \
-	$(O)/evolutionMPICUDA.o $(O)/cudaUtils.o \
+	$(O)/evolutionMPICUDA.o $(O)/cudaUtils.o  $(O)/evolutionCUDA.o \
 	$(CUDAObjs) $(CUDALinkObj)
 
 QMLibs = $(O)/libqmdyn.a

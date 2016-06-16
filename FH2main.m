@@ -1,8 +1,12 @@
 
 function [] = FH2main(run_evolution)
 
+global myMPI
+
 if nargin == 0 
-  run_evolution = 0;
+  run_evolution = 1;
+  myMPI.rank = 0;
+  myMPI.size = 1;
 end
 
 warning off MATLAB:maxNumCompThreads:Deprecated
@@ -21,7 +25,38 @@ setenv('HSW_DATA_DIR', ...
 
 global H2eV 
 global FH2Data
-global myMPI
+%global myMPI
+
+theta.n = int32(180);
+[ theta.x, theta.w ] = GaussLegendre2(theta.n);
+
+J = 15;
+M = 1;
+p = 1;
+LMax = 120;
+
+Omegas = OmegaList(J, M, p, LMax)
+
+n = 2;
+index_start = n*myMPI.rank+1;
+index_end = n*(myMPI.rank+1);
+if index_end > numel(Omegas)
+  index_end = numel(Omegas)
+end
+
+Omegas = Omegas(index_start:index_end)
+nMax = LMax - min(Omegas) + 1;
+
+P = zeros(numel(theta.x), nMax, numel(Omegas));
+
+for i = 1 : numel(Omegas) 
+  n = LMax - Omegas(i) + 1;
+  P(:,1:n,i) = AssLegendreP(Omegas(i), LMax, theta.x);
+end
+
+OmegaStates.lmax = int32(LMax);
+OmegaStates.omegas = int32(Omegas);
+OmegaStates.associated_legendres = P;
 
 jRot = 0;
 nVib = 0;
@@ -45,12 +80,16 @@ time.steps = int32(0);
 
 % r1: R
 
-r1.n = int32(256);
+r1.n = int32(512);
 %r1.n = int32(9600);
 r1.r = linspace(0.2, 14.0, r1.n);
 r1.left = r1.r(1);
 r1.dr = r1.r(2) - r1.r(1);
-r1.mass = masses(1)*(masses(2)+masses(3))/(masses(1)+masses(2)+masses(3));
+r1.mass = masses(1)*(masses(2)+masses(3))/(masses(1)+masses(2)+ ...
+					   masses(3));
+r1.dump_Cd = 4.0;
+r1.dump_xd = 12.0;
+
 r1.r0 = 10.0;
 r1.k0 = 2.0;
 r1.delta = 0.2;
@@ -63,12 +102,15 @@ dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
 
 % r2: r
 
-r2.n = int32(128);
+r2.n = int32(256);
 %r2.n = int32(92);
 r2.r = linspace(0.3, 12.0, r2.n);
 r2.left = r2.r(1);
 r2.dr = r2.r(2) - r2.r(1);
 r2.mass = masses(2)*masses(3)/(masses(2)+masses(3));
+
+r2.dump_Cd = 4.0;
+r2.dump_xd = 10.0;
 
 dump2.Cd = 4.0;
 dump2.xd = 10.0;
@@ -86,14 +128,14 @@ fprintf(' Dviding surface: %.8f\n', r2Div);
 dimensions = 3;
 
 if dimensions == 2 
-  theta.n = int32(1);
+  %theta.n = int32(1);
   theta.m = int32(0);
-  theta.x = 1.0;
-  theta.w = 2.0;
+  %theta.x = 1.0;
+  %theta.w = 2.0;
 else 
-  theta.n = int32(180);
+  %theta.n = int32(180);
   theta.m = int32(60);
-  [ theta.x, theta.w ] = GaussLegendre2(theta.n);
+  %[ theta.x, theta.w ] = GaussLegendre2(theta.n);
 end
 
 theta.associated_legendre = LegendreP2(double(theta.m), theta.x);
@@ -112,6 +154,14 @@ options.plot = false;
 pot = FH2PESJacobi(r1.r, r2.r, acos(theta.x), masses);
 
 [ psi, eH2, psiH2 ] = InitWavePacket(r1, r2, theta, jRot, nVib);
+
+nOmegas = numel(OmegaStates.omegas);
+OmegaStates.wave_packets = zeros([size(psi), nOmegas]);
+for i = 1 : nOmegas
+  OmegaStates.wave_packets(:,:,:,i) = psi;
+end
+
+size(OmegaStates.wave_packets)
 
 if options.plot 
   PlotPotWave(r1, r2, pot, psi);
@@ -142,6 +192,8 @@ FH2Data.options = options;
 FH2Data.dump1 = dump1;
 FH2Data.dump2 = dump2;
 FH2Data.CRP = CRP;
+
+FH2Data.OmegaStates = OmegaStates
 
 % time evoluation
 

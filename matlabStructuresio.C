@@ -1,5 +1,5 @@
 
-/* created at: 2016-06-14 12:56:02 */
+/* created at: 2016-06-15 16:44:03 */
 
 #include <iostream>
 using namespace std;
@@ -25,6 +25,8 @@ void RadialCoordinate::write_fields(ostream &s) const
   s << Indent() << "left " << left << "\n";
   s << Indent() << "dr " << dr << "\n";
   s << Indent() << "mass " << mass << "\n";
+  s << Indent() << "dump_Cd " << dump_Cd << "\n";
+  s << Indent() << "dump_xd " << dump_xd << "\n";
 }
 
 ostream & operator <<(ostream &s, const AngleCoordinate &c)
@@ -94,5 +96,21 @@ void CummulativeReactionProbabilities::write_fields(ostream &s) const
   s << Indent() << "n_gradient_points " << n_gradient_points << "\n";
   s << Indent() << "n_energies " << n_energies << "\n";
   s << Indent() << "calculate_CRP " << calculate_CRP << "\n";
+}
+
+ostream & operator <<(ostream &s, const OmegaStates &c)
+{
+  s << " {\n";
+  IndentPush();
+  c.write_fields(s);
+  IndentPop();
+  return s << Indent() << " }";
+}
+
+void OmegaStates::write_fields(ostream &s) const
+{
+  s << Indent() << "lmax " << lmax << "\n";
+  s << Indent() << "omegas " << omegas << "\n";
+  s << Indent() << "associated_legendres " << associated_legendres << "\n";
 }
 

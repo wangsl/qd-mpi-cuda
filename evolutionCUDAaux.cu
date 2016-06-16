@@ -13,6 +13,7 @@ static __global__ void _test_constant_memory_()
 
 static __global__ void _print_gauss_legendre_weight_(const int n)
 {
+  printf(" Gauss-Legendre weights\n");
   for(int i = 0; i < n; i++)
     printf(" %d %.15f\n", i, gauss_legendre_weight_dev[i]);
 }
@@ -31,6 +32,7 @@ static __global__ void _calculate_dump_function_(double *dump, const int n,
 static __global__ void _show_dump_function_(double *dump, const int n, 
 					    const double r_left, const double dr)
 {
+  printf(" Dump function\n");
   for(int i = 0; i < n; i++) {
     const double r = r_left + i*dr;
     printf("%.15f %.15f\n", r, dump[i]);
