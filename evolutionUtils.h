@@ -37,5 +37,11 @@ namespace EvoltionUtils {
   }
 }
 
+// These constant memory variables are defined as evolutionCUDA2.cu
+
+extern __constant__ EvoltionUtils::RadialCoordinate r1_dev;
+extern __constant__ EvoltionUtils::RadialCoordinate r2_dev;
+extern __constant__ double gauss_legendre_weight_dev[512];
+
 #endif /* EVOLUTION_UTILS_H */
 

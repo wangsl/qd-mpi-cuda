@@ -18,23 +18,29 @@ static __global__ void _print_gauss_legendre_weight_(const int n)
     printf(" %d %.15f\n", i, gauss_legendre_weight_dev[i]);
 }
 
-static __global__ void _calculate_dump_function_(double *dump, const int n,
-						 const double r_left, const double dr, 
-						 const double Cd, const double xd)
+static __global__ void _calculate_dump_function_(double *dump, const int r_index)
 {
+  EvoltionUtils::RadialCoordinate r;
+  if(r_index == 1)
+    r = r1_dev;
+  else if(r_index == 2)
+    r = r2_dev;
+  
   const int index = threadIdx.x + blockDim.x*blockIdx.x;
-  if (index < n) {
-    const double r = r_left + index*dr;
-    dump[index] = cudaMath::WoodsSaxon(r, Cd, xd);
-  }
+  if (index < r.n) 
+    dump[index] = cudaMath::WoodsSaxon(r.left+index*r.dr, r.dump_Cd, r.dump_xd);
 }
 
-static __global__ void _show_dump_function_(double *dump, const int n, 
-					    const double r_left, const double dr)
+static __global__ void _show_dump_function_(double *dump, const int r_index)
 {
   printf(" Dump function\n");
-  for(int i = 0; i < n; i++) {
-    const double r = r_left + i*dr;
-    printf("%.15f %.15f\n", r, dump[i]);
-  }
+  
+  EvoltionUtils::RadialCoordinate r;
+  if(r_index == 1)
+    r = r1_dev;
+  else if(r_index == 2)
+    r = r2_dev;
+  
+  for(int i = 0; i < r.n; i++)
+    printf(" %.15f %.15f\n", r.left+i*r.dr, dump[i]);
 }

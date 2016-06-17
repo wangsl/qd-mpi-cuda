@@ -5,7 +5,6 @@
 
 __constant__ EvoltionUtils::RadialCoordinate r1_dev;
 __constant__ EvoltionUtils::RadialCoordinate r2_dev;
-
 __constant__ double gauss_legendre_weight_dev[512];
 
 #include "evolutionCUDAaux.cu"
@@ -79,7 +78,7 @@ void EvolutionCUDA::test_device()
   
   int n_threads = _NTHREADS_;
   int n_blocks = cudaUtils::number_of_blocks(n_threads, r1.n);
-  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump1, r1.n, r1.left, r1.dr, r1.dump_Cd, r1.dump_xd);
+  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump1, 1); //r1.n, r1.left, r1.dr, r1.dump_Cd, r1.dump_xd);
 
   //_show_dump_function_<<<1,1>>>(dump1, r1.n, r1.left, r1.dr);
 
@@ -90,7 +89,7 @@ void EvolutionCUDA::test_device()
   
   n_threads = _NTHREADS_;
   n_blocks = cudaUtils::number_of_blocks(n_threads, r2.n);
-  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump2, r2.n, r2.left, r2.dr, r2.dump_Cd, r2.dump_xd);
+  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump2, 2); //r2.n, r2.left, r2.dr, r2.dump_Cd, r2.dump_xd);
 
   //_show_dump_function_<<<1,1>>>(dump2, r2.n, r2.left, r2.dr);
 

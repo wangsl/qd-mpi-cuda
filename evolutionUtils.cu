@@ -36,3 +36,12 @@ static __global__ void _show_dump_function_(double *dump, const int n,
     printf("%.15f %.15f\n", r, dump[i]);
   }
 }
+
+static __global__ void _calculate_dump_function_r1_(double *dump)
+{
+  const int index = threadIdx.x + blockDim.x*blockIdx.x;
+  if (index < r1_dev.n) {
+    const double r = r1_dev.left + index*r1_dev.dr;
+    dump[index] = cudaMath::WoodsSaxon(r, r1_dev.Cd, r1_dev.xd);
+  }
+}
