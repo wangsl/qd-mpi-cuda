@@ -36,6 +36,8 @@ CXXFLAGS = -std=c++0x $(NVCCINCLUDE)
 
 Link = $(CXX)
 
+LIBS = -lifcoremt -L$(CUDA_LIB) -lcufft -lcublas -lcudart
+
 MEXA64Files = \
 	$(O)/MPI_Init.mexa64 \
 	$(O)/MPI_Finalize.mexa64 \

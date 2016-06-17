@@ -27,13 +27,13 @@ global H2eV
 global FH2Data
 %global myMPI
 
-theta.n = int32(180);
+theta.n = int32(200);
 [ theta.x, theta.w ] = GaussLegendre2(theta.n);
 
 J = 15;
 M = 1;
 p = 1;
-LMax = 120;
+LMax = 160;
 
 Omegas = OmegaList(J, M, p, LMax)
 
@@ -80,8 +80,8 @@ time.steps = int32(0);
 
 % r1: R
 
-%r1.n = int32(512);
-r1.n = int32(256);
+r1.n = int32(512);
+%r1.n = int32(256);
 r1.r = linspace(0.2, 14.0, r1.n);
 r1.left = r1.r(1);
 r1.dr = r1.r(2) - r1.r(1);
@@ -102,8 +102,8 @@ dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
 
 % r2: r
 
-%r2.n = int32(512);
-r2.n = int32(128);
+r2.n = int32(512);
+%r2.n = int32(128);
 r2.r = linspace(0.3, 12.0, r2.n);
 r2.left = r2.r(1);
 r2.dr = r2.r(2) - r2.r(1);

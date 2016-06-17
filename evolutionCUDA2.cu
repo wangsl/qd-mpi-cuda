@@ -59,7 +59,7 @@ void EvolutionCUDA::setup_Omega_Psis()
   for (int i = 0; i < n_omgs; i++)
     Omega_Psis[i].setup_data(r1.n, r2.n, theta.n, omgs[i], omegas.lmax,
 			     ass_legendres[i], (Complex *) wave_packets[i]);
-
+  
 }
 
 void EvolutionCUDA::test_device()
