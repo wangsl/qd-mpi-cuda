@@ -3,6 +3,8 @@
 #include "evolutionCUDA.h"
 #include "evolutionUtils.h"
 
+// defined as extern in evolutionUtils.h
+
 __constant__ EvoltionUtils::RadialCoordinate r1_dev;
 __constant__ EvoltionUtils::RadialCoordinate r2_dev;
 __constant__ double gauss_legendre_weight_dev[512];
@@ -13,13 +15,10 @@ void EvolutionCUDA::allocate_device_data()
 { 
   if(!pot_dev) {
     std::cout << " Allocate device memory for potential" << std::endl;
-
     const int &n1 = r1.n;
     const int &n2 = r2.n; 
     const int &n_theta = theta.n;
-    
-    const int size = n1*n2*n_theta;
-    
+    const size_t size = n1*n2*n_theta;
     checkCudaErrors(cudaMalloc(&pot_dev, size*sizeof(double)));
     insist(pot_dev);
     checkCudaErrors(cudaMemcpy(pot_dev, pot, size*sizeof(double), cudaMemcpyHostToDevice));
@@ -27,9 +26,7 @@ void EvolutionCUDA::allocate_device_data()
   
   if(!has_setup_constant_memory) {
     std::cout << " Setup device constant memory" << std::endl;
-    
     const int &n_theta = theta.n;
-
     size_t size = 0;
     checkCudaErrors(cudaGetSymbolSize(&size, gauss_legendre_weight_dev));
     insist(size/sizeof(double) > n_theta);
@@ -59,7 +56,7 @@ void EvolutionCUDA::setup_Omega_Psis()
   
   Omega_Psis.resize(n_omgs);
   
-  for(int i = 0; i < n_omgs; i++)
+  for (int i = 0; i < n_omgs; i++)
     Omega_Psis[i].setup_data(r1.n, r2.n, theta.n, omgs[i], omegas.lmax,
 			     ass_legendres[i], (Complex *) wave_packets[i]);
 
@@ -78,9 +75,7 @@ void EvolutionCUDA::test_device()
   
   int n_threads = _NTHREADS_;
   int n_blocks = cudaUtils::number_of_blocks(n_threads, r1.n);
-  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump1, 1); //r1.n, r1.left, r1.dr, r1.dump_Cd, r1.dump_xd);
-
-  //_show_dump_function_<<<1,1>>>(dump1, r1.n, r1.left, r1.dr);
+  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump1, 1);
 
   _CUDA_FREE_(dump1);
   
@@ -89,9 +84,7 @@ void EvolutionCUDA::test_device()
   
   n_threads = _NTHREADS_;
   n_blocks = cudaUtils::number_of_blocks(n_threads, r2.n);
-  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump2, 2); //r2.n, r2.left, r2.dr, r2.dump_Cd, r2.dump_xd);
-
-  //_show_dump_function_<<<1,1>>>(dump2, r2.n, r2.left, r2.dr);
+  _calculate_dump_function_<<<n_blocks, n_threads>>>(dump2, 2);
 
   _CUDA_FREE_(dump2);
 }
