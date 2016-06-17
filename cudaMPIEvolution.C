@@ -72,7 +72,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   EvolutionCUDA evolCUDA(pot.data, r1, r2, theta, omegas);
   cudaUtils::gpu_memory_usage();
-  //evolCUDA.test();
+  evolCUDA.test();
  
   std::cout.flush();
   std::cout.precision(np);

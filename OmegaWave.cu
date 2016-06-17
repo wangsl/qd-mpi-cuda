@@ -3,9 +3,6 @@
 #include "evolutionUtils.h"
 #include "cudaUtils.h"
 
-//extern __constant__ EvoltionUtils::RadialCoordinate r1_dev;
-//extern __constant__ EvoltionUtils::RadialCoordinate r2_dev;
-
 #include "evolutionCUDAaux.cu"
 
 void OmegaWaveFunction::setup_data(const int n1_, const int n2_, const int n_theta_,
@@ -44,7 +41,8 @@ void OmegaWaveFunction::setup_device_data()
   std::cout << " Omega: " << omega << std::endl;
 
   if(!psi_dev) {
-    std::cout << " Allocate device memory for wavepacket: " << n1 << " " << n2 << " " << n_theta << std::endl;
+    std::cout << " Allocate device memory for wavepacket: " 
+	      << n1 << " " << n2 << " " << n_theta << std::endl;
     const int size = n1*n2*n_theta;
     checkCudaErrors(cudaMalloc(&psi_dev, size*sizeof(Complex)));
     checkCudaErrors(cudaMemcpy(psi_dev, psi, size*sizeof(Complex), cudaMemcpyHostToDevice));
@@ -53,7 +51,8 @@ void OmegaWaveFunction::setup_device_data()
   if(!ass_legendres_dev) {
     const int nLeg = lmax - omega + 1;
     insist(nLeg > 0);
-    std::cout << " Allocate device memory for associated Legendre Polynomials: " << n_theta << " " << nLeg << std::endl;
+    std::cout << " Allocate device memory for associated Legendre Polynomials: " 
+	      << n_theta << " " << nLeg << std::endl;
     const int size = n_theta*nLeg;
     checkCudaErrors(cudaMalloc(&ass_legendres_dev, size*sizeof(double)));
     checkCudaErrors(cudaMemcpy(ass_legendres_dev, (const double *) ass_legendres, 

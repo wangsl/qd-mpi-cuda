@@ -64,27 +64,19 @@ void EvolutionCUDA::setup_Omega_Psis()
 
 void EvolutionCUDA::test_device()
 {
-  //std::cout << " Test CUDA data" << std::endl;
-  
-  //_test_constant_memory_<<<1,1>>>();
-  
-  //_print_gauss_legendre_weight_<<<1,1>>>(theta.n);
-  
   double *dump1 = 0;
   checkCudaErrors(cudaMalloc(&dump1, r1.n*sizeof(double)));
-  
   int n_threads = _NTHREADS_;
   int n_blocks = cudaUtils::number_of_blocks(n_threads, r1.n);
   _calculate_dump_function_<<<n_blocks, n_threads>>>(dump1, 1);
-
+  _show_dump_function_<<<1,1>>>(dump1, 1);
   _CUDA_FREE_(dump1);
   
   double *dump2 = 0;
   checkCudaErrors(cudaMalloc(&dump2, r2.n*sizeof(double)));
-  
   n_threads = _NTHREADS_;
   n_blocks = cudaUtils::number_of_blocks(n_threads, r2.n);
   _calculate_dump_function_<<<n_blocks, n_threads>>>(dump2, 2);
-
+  _show_dump_function_<<<1,1>>>(dump2, 2);
   _CUDA_FREE_(dump2);
 }

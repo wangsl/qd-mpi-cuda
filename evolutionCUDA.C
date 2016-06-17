@@ -31,7 +31,7 @@ void EvolutionCUDA::test()
   // std::cout << " " << r1.n << " " << r1.left << " " << r1.dr << " " << r1.mass << std::endl;
   // std::cout << " " << r2.n << " " << r2.left << " " << r2.dr << " " << r2.mass << std::endl;
 
-  //test_device();
+  test_device();
 
   //cudaUtils::gpu_memory_usage();
 }
