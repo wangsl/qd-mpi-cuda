@@ -32,6 +32,8 @@ public:
   
   void test();
 
+  void test(cufftHandle &cufft_plan_for_psi, cublasHandle_t &cublas_handle);
+
 private:
   Complex *psi;
   
@@ -61,6 +63,10 @@ private:
   void destroy_cufft_plan_for_psi();
   void forward_fft_for_psi();
   void backward_fft_for_psi(const int do_scale = 0);
+  
+  void forward_fft_for_psi(cufftHandle &cufft_plan_for_psi);
+  void backward_fft_for_psi(cufftHandle &cufft_plan_for_psi, cublasHandle_t &cublas_handle, 
+			    const int do_scale = 0);
 };
 
 #endif /* OMEGA_WAVE_H */

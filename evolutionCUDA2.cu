@@ -43,10 +43,12 @@ void EvolutionCUDA::allocate_device_data()
 void EvolutionCUDA::deallocate_device_data()
 {
   std::cout << " Deallocate device memory: potential" << std::endl;
+  destroy_cufft_plan_for_psi();
+  destroy_cublas_handle();
   _CUDA_FREE_(pot_dev);
 }
 
-void EvolutionCUDA::setup_Omega_Psis()
+void EvolutionCUDA::setup_omega_psis()
 {
   const Vec<int> omgs = omegas.omegas;
   const Vec<RMat> &ass_legendres = omegas.associated_legendres;	
@@ -54,10 +56,10 @@ void EvolutionCUDA::setup_Omega_Psis()
   
   const int n_omgs = omgs.size();
   
-  Omega_Psis.resize(n_omgs);
+  omega_psis.resize(n_omgs);
   
   for (int i = 0; i < n_omgs; i++)
-    Omega_Psis[i].setup_data(r1.n, r2.n, theta.n, omgs[i], omegas.lmax,
+    omega_psis[i].setup_data(r1.n, r2.n, theta.n, omgs[i], omegas.lmax,
 			     ass_legendres[i], (Complex *) wave_packets[i]);
   
 }
@@ -79,4 +81,52 @@ void EvolutionCUDA::test_device()
   _calculate_dump_function_<<<n_blocks, n_threads>>>(dump2, 2);
   _show_dump_function_<<<1,1>>>(dump2, 2);
   _CUDA_FREE_(dump2);
+}
+
+void EvolutionCUDA::setup_cufft_plan_for_psi()
+{
+  if(has_cufft_plan_for_psi) return;
+  
+  const int n1 = r1.n;
+  const int n2 = r2.n;
+  const int  n_theta = theta.n;
+  const int dim [] = { n2, n1 };
+  
+  insist(cufftPlanMany(&_cufft_plan_for_psi, 2, const_cast<int *>(dim), NULL, 1, n1*n2, NULL, 1, n1*n2,
+		       CUFFT_Z2Z, n_theta) == CUFFT_SUCCESS);
+
+  has_cufft_plan_for_psi = 1;
+}
+
+void EvolutionCUDA::destroy_cufft_plan_for_psi()
+{
+  if(!has_cufft_plan_for_psi) return;
+  insist(cufftDestroy(_cufft_plan_for_psi) == CUFFT_SUCCESS);
+  has_cufft_plan_for_psi = 0;
+}
+
+cufftHandle &EvolutionCUDA::cufft_plan_for_psi()
+{
+  setup_cufft_plan_for_psi();
+  return _cufft_plan_for_psi;
+}
+
+void EvolutionCUDA::setup_cublas_handle()
+{
+  if(has_cublas_handle) return;
+  insist(cublasCreate(&_cublas_handle) == CUBLAS_STATUS_SUCCESS);
+  has_cublas_handle = 1;
+}
+
+void EvolutionCUDA::destroy_cublas_handle()
+{
+  if(!has_cublas_handle) return;
+  insist(cublasDestroy(_cublas_handle) == CUBLAS_STATUS_SUCCESS);
+  has_cublas_handle = 0;
+}
+
+cublasHandle_t &EvolutionCUDA::cublas_handle()
+{
+  setup_cublas_handle();
+  return _cublas_handle;
 }

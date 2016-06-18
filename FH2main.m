@@ -80,7 +80,7 @@ time.steps = int32(0);
 
 % r1: R
 
-r1.n = int32(512);
+r1.n = int32(864);
 %r1.n = int32(256);
 r1.r = linspace(0.2, 14.0, r1.n);
 r1.left = r1.r(1);
@@ -102,7 +102,7 @@ dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
 
 % r2: r
 
-r2.n = int32(512);
+r2.n = int32(864);
 %r2.n = int32(128);
 r2.r = linspace(0.3, 12.0, r2.n);
 r2.left = r2.r(1);
