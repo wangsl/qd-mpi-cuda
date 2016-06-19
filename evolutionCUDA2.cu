@@ -59,8 +59,9 @@ void EvolutionCUDA::setup_omega_psis()
   omega_psis.resize(n_omgs);
   
   for (int i = 0; i < n_omgs; i++)
-    omega_psis[i].setup_data(r1.n, r2.n, theta.n, omgs[i], omegas.lmax,
-			     ass_legendres[i], (Complex *) wave_packets[i]);
+    omega_psis[i].setup_data(omgs[i], omegas.lmax, ass_legendres[i], 
+			     (Complex *) wave_packets[i], &r1, &r2, &theta,
+			     &cufft_plan_for_psi(), &cublas_handle());
   
 }
 
@@ -89,7 +90,7 @@ void EvolutionCUDA::setup_cufft_plan_for_psi()
   
   const int n1 = r1.n;
   const int n2 = r2.n;
-  const int  n_theta = theta.n;
+  const int n_theta = theta.n;
   const int dim [] = { n2, n1 };
   
   insist(cufftPlanMany(&_cufft_plan_for_psi, 2, const_cast<int *>(dim), NULL, 1, n1*n2, NULL, 1, n1*n2,
@@ -129,4 +130,10 @@ cublasHandle_t &EvolutionCUDA::cublas_handle()
 {
   setup_cublas_handle();
   return _cublas_handle;
+}
+
+void EvolutionCUDA::evolution_with_potential(const double dt)
+{
+  for (int i = 0; i < omega_psis.size(); i++) 
+    omega_psis[i].evolution_with_potential(pot_dev, dt);
 }

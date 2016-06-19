@@ -121,19 +121,14 @@ OmegaStates::OmegaStates(const mxArray *mx) :
 
   wave_packets.resize(dims_[3]);
   
-  const Complex *c_p = wp.data;
   const size_t size = dims_[0]*dims_[1]*dims_[2]/2;
+  insist(2*size ==  dims_[0]*dims_[1]*dims_[2]);
+  const Complex *c_p = wp.data;
   for(int i = 0; i < dims_[3]; i++) {
     wave_packets[i] = Vec<Complex>(size, const_cast<Complex *>(c_p));
-    p += size;
+    c_p += size;
   }
-  
-  //std::cout << " Wave packets size test" << std::endl;
-  //for(int i = 0; i < wave_packets.size(); i++) {
-  //std::cout << wave_packets[i].size() << std::endl;
-  //}
-
-}
+}  
 
 OmegaStates::~OmegaStates()
 {  if(mx) mx = 0; }

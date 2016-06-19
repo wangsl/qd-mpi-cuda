@@ -70,7 +70,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   insist(mxPtr);
   OmegaStates omegas(mxPtr);
 
-  EvolutionCUDA evolCUDA(pot.data, r1, r2, theta, omegas);
+  EvolutionCUDA evolCUDA(pot.data, r1, r2, theta, omegas, time);
   cudaUtils::gpu_memory_usage();
   evolCUDA.test();
  

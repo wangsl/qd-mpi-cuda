@@ -10,7 +10,7 @@ setenv('CUDA_VISIBLE_DEVICES', int2str(myMPI.rank));
 
 %cudaMPITest();
 
-FH2main(1)
+FH2main()
 
 MPI_Finalize();
 

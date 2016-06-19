@@ -1,10 +1,11 @@
 
-function [] = FH2main(run_evolution)
+function [] = FH2main()
 
 global myMPI
 
-if nargin == 0 
-  run_evolution = 1;
+run_evolution = 1;
+if(isempty(getenv('PMI_RANK')))
+  run_evolution = 0;
   myMPI.rank = 0;
   myMPI.size = 1;
 end
@@ -37,7 +38,11 @@ LMax = 160;
 
 Omegas = OmegaList(J, M, p, LMax)
 
-n = 2;
+if (myMPI.size == 1) 
+  n = numel(Omegas);
+else
+  n = 2;
+end
 index_start = n*myMPI.rank+1;
 index_end = n*(myMPI.rank+1);
 if index_end > numel(Omegas)
@@ -75,13 +80,13 @@ masses = masses*MassAU;
 % time
 
 time.total_steps = int32(500000);
-time.time_step = 1;
+time.time_step = 2;
 time.steps = int32(0);
 
 % r1: R
 
-r1.n = int32(864);
-%r1.n = int32(256);
+%r1.n = int32(1024);
+r1.n = int32(256);
 r1.r = linspace(0.2, 14.0, r1.n);
 r1.left = r1.r(1);
 r1.dr = r1.r(2) - r1.r(1);
@@ -91,10 +96,11 @@ r1.dump_Cd = 4.0;
 r1.dump_xd = 12.0;
 
 r1.r0 = 10.0;
-r1.k0 = 2.0;
+r1.k0 = 2.0;8
 r1.delta = 0.2;
 
-eGT = 1/(2*r1.mass)*(r1.k0^2 + 1/(2*r1.delta^2))*H2eV
+eGT = 1/(2*r1.mass)*(r1.k0^2 + 1/(2*r1.delta^2))*H2eV;
+fprintf(' Gaussian wavepacket energy: %.15f\n', eGT);
 
 dump1.Cd = 4.0;
 dump1.xd = 12.0;
@@ -102,8 +108,8 @@ dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
 
 % r2: r
 
-r2.n = int32(864);
-%r2.n = int32(128);
+%r2.n = int32(1024);
+r2.n = int32(256);
 r2.r = linspace(0.3, 12.0, r2.n);
 r2.left = r2.r(1);
 r2.dr = r2.r(2) - r2.r(1);
@@ -204,6 +210,8 @@ end
 tic
 cudaMPIEvolution(FH2Data);
 toc
+
+FH2Data.time.steps
 
 return
 

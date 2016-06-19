@@ -14,7 +14,8 @@ public:
 		const RadialCoordinate &r1,
 		const RadialCoordinate &r2,
 		const AngleCoordinate &theta,
-		OmegaStates &omegas
+		OmegaStates &omegas,
+		EvolutionTime &time
 		);
   
   ~EvolutionCUDA();
@@ -30,6 +31,7 @@ private:
   const RadialCoordinate &r2;
   const AngleCoordinate &theta;
   OmegaStates &omegas;
+  EvolutionTime &time;
 
   double *pot_dev;
 
@@ -60,6 +62,8 @@ private:
   void deallocate_device_data();
 
   void test_device();
+
+  void evolution_with_potential(const double dt);
 };
 
 #endif/* EVOLUTION_CUDA_H */
