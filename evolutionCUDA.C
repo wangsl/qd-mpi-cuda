@@ -37,6 +37,7 @@ void EvolutionCUDA::test()
     time.steps++;
     for (int i = 0; i < omega_psis.size(); i++) {
       std::cout << " module: " << omega_psis[i].module() << std::endl;
+      std::cout << " potential energy: " << omega_psis[i].potential_energy() << std::endl;
     }
     insist(MPI_Barrier(MPI_COMM_WORLD) == MPI_SUCCESS);
   }

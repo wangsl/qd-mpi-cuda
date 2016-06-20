@@ -14,11 +14,11 @@ __constant__ double gauss_legendre_weight_dev[512];
 void EvolutionCUDA::allocate_device_data()
 { 
   if(!pot_dev) {
-    std::cout << " Allocate device memory for potential" << std::endl;
     const int &n1 = r1.n;
     const int &n2 = r2.n; 
     const int &n_theta = theta.n;
     const size_t size = n1*n2*n_theta;
+    std::cout << " Allocate device memory for potential: " << n1 << " " << n2 << " " << n_theta << std::endl;
     checkCudaErrors(cudaMalloc(&pot_dev, size*sizeof(double)));
     insist(pot_dev);
     checkCudaErrors(cudaMemcpy(pot_dev, pot, size*sizeof(double), cudaMemcpyHostToDevice));
@@ -60,7 +60,8 @@ void EvolutionCUDA::setup_omega_psis()
   
   for (int i = 0; i < n_omgs; i++)
     omega_psis[i].setup_data(omgs[i], omegas.lmax, ass_legendres[i], 
-			     (Complex *) wave_packets[i], &r1, &r2, &theta,
+			     (Complex *) wave_packets[i], pot_dev,
+			     &r1, &r2, &theta,
 			     &cufft_plan_for_psi(), &cublas_handle());
   
 }
