@@ -161,6 +161,8 @@ public:
   OmegaStates(const mxArray *mx);
   ~OmegaStates();
 
+  const int &J; // out
+  const int &parity; // out
   const int &lmax; // out
   Vec<int> omegas; // out
   Vec<RMat> associated_legendres; // out

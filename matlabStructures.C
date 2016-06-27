@@ -90,7 +90,9 @@ CummulativeReactionProbabilities::CummulativeReactionProbabilities(const mxArray
 
 OmegaStates::OmegaStates(const mxArray *mx) :
   mx(mx), 
-  lmax(*(int *) mxGetData(mx, "lmax"))
+  J(*(int *) mxGetData(mx, "J")),
+  lmax(*(int *) mxGetData(mx, "lmax")),
+  parity(*(int *) mxGetData(mx, "parity"))
 {
   const mxArray *omegas_ptr = mxGetField(mx, 0, "omegas");
   insist(omegas_ptr);

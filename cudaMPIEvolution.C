@@ -8,6 +8,7 @@
 #include <mex.h>
 
 #include "evolutionCUDA.h"
+#include "evolutionUtils.h"
 
 extern "C" int FORT(myisnan)(const double &x)
 {
@@ -70,9 +71,17 @@ void mexFunction(int nlhs, mxArray *plhs[],
   insist(mxPtr);
   OmegaStates omegas(mxPtr);
 
+  //void _mpi_test_1();
+  //_mpi_test_1();
+
+  for(int j = 0; j < omegas.lmax; j++) 
+    setup_coriolis_matrix(omegas.J, omegas.parity, j);
+
+#if 0
   EvolutionCUDA evolCUDA(pot.data, r1, r2, theta, omegas, time);
   cudaUtils::gpu_memory_usage();
   evolCUDA.test();
+#endif
  
   std::cout.flush();
   std::cout.precision(np);

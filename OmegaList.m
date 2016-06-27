@@ -1,5 +1,5 @@
 
-function [ Omega ] = OmegaList(J, M, p, LMax)
+function [ Omega ] = OmegaList(J, p, LMax)
 
 OmegaMax = min(J, LMax);
 
@@ -14,4 +14,3 @@ else
 end
 
 Omega = OmegaMin:OmegaMax;
-

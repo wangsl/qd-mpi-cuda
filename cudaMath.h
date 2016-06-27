@@ -102,7 +102,8 @@ namespace cudaMath {
   }
   
   template __global__ 
-  void _vector_multiplication_<Complex, Complex, double>(Complex *vOut, const Complex *vIn1, const double *vIn2, const int n);
+  void _vector_multiplication_<Complex, Complex, double>(Complex *vOut, 
+							 const Complex *vIn1, const double *vIn2, const int n);
   
   __device__ inline void setup_momentum_for_fft(double *p, const int n, const double xl)
   {

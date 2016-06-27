@@ -4,6 +4,9 @@
 #include <mpi.h>
 #include <helper_cuda.h>
 
+#include "matlabUtils.h"
+#include "vecbase.h"
+
 __global__ void AplusB(int *ret, const int a, const int b)
 {
   ret[threadIdx.x] += a + b + threadIdx.x;
@@ -74,6 +77,24 @@ void _cuda_mpi_test_2()
   if(ret_h) { delete [] ret_h; ret_h = 0; }
   
   return;
+}
+
+void _mpi_test_1()
+{
+  int rank = -1;
+  insist(MPI_Comm_rank(MPI_COMM_WORLD, &rank) == MPI_SUCCESS);
+
+  int n_procs = -100;
+  insist(MPI_Comm_size(MPI_COMM_WORLD, &n_procs) == MPI_SUCCESS);
+  
+  Vec<int> i_data(n_procs);
+  i_data.zeros();
+  
+  i_data.show_in_one_line();
+
+  insist(MPI_Allgather(&rank, 1, MPI_INT, i_data, 1, MPI_INT, MPI_COMM_WORLD) == MPI_SUCCESS);
+
+  i_data.show_in_one_line();
 }
 
 void cuda_mpi_test()

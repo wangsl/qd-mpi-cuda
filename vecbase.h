@@ -132,6 +132,8 @@ public:
   void zero()
   { memset(p, 0, size()*sizeof(T)); }
 
+  void zeros() { zero(); }
+
   void show_in_one_line_without_endl() const
   {
     cout << " {";

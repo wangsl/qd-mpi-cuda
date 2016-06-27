@@ -1,5 +1,5 @@
 
-/* created at: 2016-06-15 16:44:03 */
+/* created at: 2016-06-27 13:43:41 */
 
 #include <iostream>
 using namespace std;
@@ -109,6 +109,8 @@ ostream & operator <<(ostream &s, const OmegaStates &c)
 
 void OmegaStates::write_fields(ostream &s) const
 {
+  s << Indent() << "J " << J << "\n";
+  s << Indent() << "parity " << parity << "\n";
   s << Indent() << "lmax " << lmax << "\n";
   s << Indent() << "omegas " << omegas << "\n";
   s << Indent() << "associated_legendres " << associated_legendres << "\n";

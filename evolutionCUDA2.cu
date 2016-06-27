@@ -1,4 +1,6 @@
 
+#include <mpi.h>
+
 #include <helper_cuda.h>
 #include "evolutionCUDA.h"
 #include "evolutionUtils.h"
@@ -44,6 +46,7 @@ void EvolutionCUDA::deallocate_device_data()
 {
   std::cout << " Deallocate device memory: potential" << std::endl;
   destroy_cufft_plan_for_psi();
+  destroy_cufft_plan_for_legendre_psi();
   destroy_cublas_handle();
   _CUDA_FREE_(pot_dev);
 }
@@ -59,10 +62,12 @@ void EvolutionCUDA::setup_omega_psis()
   omega_psis.resize(n_omgs);
   
   for (int i = 0; i < n_omgs; i++)
-    omega_psis[i].setup_data(omgs[i], omegas.lmax, ass_legendres[i], 
+    omega_psis[i].setup_data(omgs[i], omegas.lmax, legendre_psi_max_size,
+			     ass_legendres[i], 
 			     (Complex *) wave_packets[i], pot_dev,
 			     &r1, &r2, &theta,
-			     &cufft_plan_for_psi(), &cublas_handle());
+			     0, &cufft_plan_for_legendre_psi(), 
+			     &cublas_handle());
   
 }
 
@@ -137,4 +142,90 @@ void EvolutionCUDA::evolution_with_potential(const double dt)
 {
   for (int i = 0; i < omega_psis.size(); i++) 
     omega_psis[i].evolution_with_potential(pot_dev, dt);
+}
+
+void EvolutionCUDA::setup_cufft_plan_for_legendre_psi()
+{
+  if(has_cufft_plan_for_legendre_psi) return;
+  
+  const int n1 = r1.n;
+  const int n2 = r2.n;
+  const int &n_legs = legendre_psi_max_size;
+  
+  const int dim [] = { n2, n1 };
+  
+  insist(cufftPlanMany(&_cufft_plan_for_legendre_psi, 2, const_cast<int *>(dim), NULL, 1,
+		       n1*n2, NULL, 1, n1*n2,
+		       CUFFT_Z2Z, n_legs) == CUFFT_SUCCESS);
+
+  has_cufft_plan_for_legendre_psi = 1;
+}
+
+void EvolutionCUDA::destroy_cufft_plan_for_legendre_psi()
+{
+  if(!has_cufft_plan_for_legendre_psi) return;
+  insist(cufftDestroy(_cufft_plan_for_legendre_psi) == CUFFT_SUCCESS);
+  has_cufft_plan_for_legendre_psi = 0;
+}
+
+cufftHandle &EvolutionCUDA::cufft_plan_for_legendre_psi()
+{
+  setup_cufft_plan_for_legendre_psi();
+  return _cufft_plan_for_legendre_psi;
+}
+
+void EvolutionCUDA::test_device_mpi()
+{
+  const int n_omega_psis = omega_psis.size();
+
+  //insist(n_omega_psis == 2);
+
+  int rank = -1;
+  insist(MPI_Comm_rank(MPI_COMM_WORLD, &rank) == MPI_SUCCESS);
+  
+  int n_procs = -100;
+  insist(MPI_Comm_size(MPI_COMM_WORLD, &n_procs) == MPI_SUCCESS);
+  
+  const int &n1 = r1.n;
+  const int &n2 = r2.n;
+
+  Complex *phi_ = new Complex [n_omega_psis*(n1*n2+1)];
+  insist(phi_);
+  
+  Complex *phi_all_ = new Complex [n_omega_psis*(n1*n2+1)*n_procs];
+  insist(phi_all_);
+  memset(phi_all_, 0, sizeof(Complex)*n_omega_psis*(n1*n2+1)*n_procs);
+  
+  const int l_max = omegas.lmax;
+
+  for(int i = 0; i < n_omega_psis; i++) {
+    omega_psis[i].forward_legendre_transform();
+    omega_psis[i].forward_fft_for_legendre_psi();
+  }
+
+  for(int l = 0; l < l_max; l++) {
+
+    for(int i = 0; i < n_omega_psis; i++) 
+      omega_psis[i].copy_data_to(l, phi_+i*(n1*n2+1));
+    
+    insist(MPI_Allgather(phi_, n_omega_psis*(n1*n2+1), MPI_C_DOUBLE_COMPLEX, 
+			 phi_all_, n_omega_psis*(n1*n2+1), MPI_C_DOUBLE_COMPLEX, 
+			 MPI_COMM_WORLD) == MPI_SUCCESS);
+    
+    for(int j = 0; j < n_procs; j++) {
+      const Complex *p_ = phi_all_ + j*n_omega_psis*(n1*n2+1);
+      for(int i = 0; i < n_omega_psis; i++) {
+	p_ += i*(n1*n2+1);
+	omega_psis[i].copy_data_from(l, p_);
+      }
+    }
+  }
+  
+  for(int i = 0; i < n_omega_psis; i++) {
+    omega_psis[i].backward_fft_for_legendre_psi(1);
+    omega_psis[i].backward_legendre_transform();
+  }
+  
+  if(phi_) { delete [] phi_; phi_ = 0; }
+  if(phi_all_) { delete [] phi_all_; phi_all_ = 0; }
 }

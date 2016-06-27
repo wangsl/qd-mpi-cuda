@@ -16,7 +16,8 @@ maxNumCompThreads(20);
 format long
 
 %addpath(genpath('/home/wang/matlab/quantum-dynamics/build'))
-addpath(genpath('/home/wang/matlab/quantum-dynamics/common'))
+addpath(genpath('/home/wang/matlab/quantum-dynamics/build/common-cuda'));
+addpath(genpath('/home/wang/matlab/quantum-dynamics/common'));
 addpath(genpath('/home/wang/matlab/quantum-dynamics/GaussLegendre'));
 addpath(genpath('/home/wang/matlab/quantum-dynamics/FH2/HSW'));
 addpath(genpath('/home/wang/matlab/quantum-dynamics/build/FH2'));
@@ -28,20 +29,20 @@ global H2eV
 global FH2Data
 %global myMPI
 
-theta.n = int32(200);
+theta.n = int32(180);
 [ theta.x, theta.w ] = GaussLegendre2(theta.n);
 
 J = 15;
 M = 1;
 p = 1;
-LMax = 160;
+LMax = 120;
 
-Omegas = OmegaList(J, M, p, LMax)
+Omegas = OmegaList(J, p, LMax)
 
 if (myMPI.size == 1) 
   n = numel(Omegas);
 else
-  n = 2;
+  n = 4;
 end
 index_start = n*myMPI.rank+1;
 index_end = n*(myMPI.rank+1);
@@ -59,6 +60,8 @@ for i = 1 : numel(Omegas)
   P(:,1:n,i) = AssLegendreP(Omegas(i), LMax, theta.x);
 end
 
+OmegaStates.J = J;
+OmegaStates.parity = 1;
 OmegaStates.lmax = int32(LMax);
 OmegaStates.omegas = int32(Omegas);
 OmegaStates.associated_legendres = P;
@@ -79,14 +82,14 @@ masses = masses*MassAU;
 
 % time
 
-time.total_steps = int32(500000);
-time.time_step = 2;
+time.total_steps = int32(10000);
+time.time_step = 0;
 time.steps = int32(0);
 
 % r1: R
 
 %r1.n = int32(1024);
-r1.n = int32(256);
+r1.n = int32(512);
 r1.r = linspace(0.2, 14.0, r1.n);
 r1.left = r1.r(1);
 r1.dr = r1.r(2) - r1.r(1);
@@ -104,12 +107,12 @@ fprintf(' Gaussian wavepacket energy: %.15f\n', eGT);
 
 dump1.Cd = 4.0;
 dump1.xd = 12.0;
-dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
+%dump1.dump = WoodsSaxon(dump1.Cd, dump1.xd, r1.r);
 
 % r2: r
 
 %r2.n = int32(1024);
-r2.n = int32(256);
+r2.n = int32(512);
 r2.r = linspace(0.3, 12.0, r2.n);
 r2.left = r2.r(1);
 r2.dr = r2.r(2) - r2.r(1);
@@ -120,7 +123,7 @@ r2.dump_xd = 10.0;
 
 dump2.Cd = 4.0;
 dump2.xd = 10.0;
-dump2.dump = WoodsSaxon(dump2.Cd, dump2.xd, r2.r);
+%dump2.dump = WoodsSaxon(dump2.Cd, dump2.xd, r2.r);
 
 % dividing surface
 
@@ -140,7 +143,7 @@ if dimensions == 2
   %theta.w = 2.0;
 else 
   %theta.n = int32(180);
-  theta.m = int32(60);
+  theta.m = int32(LMax);
   %[ theta.x, theta.w ] = GaussLegendre2(theta.n);
 end
 
@@ -148,6 +151,11 @@ theta.associated_legendre = LegendreP2(double(theta.m), theta.x);
 % transpose Legendre polynomials in order to do 
 % matrix multiplication in C++ and Fortran LegTransform.F
 theta.associated_legendre = theta.associated_legendre';
+
+theta.legendre = LegendreP2(double(theta.m), theta.x);
+% transpose Legendre polynomials in order to do 
+% matrix multiplication in C++ and Fortran LegTransform.F
+theta.legendre = theta.legendre';
 
 % options
 
@@ -204,6 +212,7 @@ FH2Data.OmegaStates = OmegaStates
 % time evoluation
 
 if run_evolution == 0
+  TimeEvolutionMexCUDA(FH2Data);
   return
 end
   

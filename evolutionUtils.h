@@ -8,6 +8,8 @@
 #undef printf
 #endif
 
+#ifdef __NVCC__
+
 namespace EvoltionUtils {
 
   struct RadialCoordinate
@@ -42,6 +44,10 @@ namespace EvoltionUtils {
 extern __constant__ EvoltionUtils::RadialCoordinate r1_dev;
 extern __constant__ EvoltionUtils::RadialCoordinate r2_dev;
 extern __constant__ double gauss_legendre_weight_dev[512];
+
+#endif /* __NVCC__ */
+
+void setup_coriolis_matrix(const int J, const int p, const int j);
 
 #endif /* EVOLUTION_UTILS_H */
 
